@@ -1,0 +1,15 @@
+{
+  "name": "balena-app-ownership-transfer",
+  "version": "0.0.1",
+  "description": "A script to transfer all balenaCloud apps from one user to another",
+  "main": "transfer-apps.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "balena-sdk": "^11.8.0",
+    "lodash": "^4.17.11"
+  }
+}
