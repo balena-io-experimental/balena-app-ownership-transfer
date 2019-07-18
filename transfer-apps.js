@@ -7,6 +7,7 @@ const dryRun = process.env.DRY_RUN;
 
 var sourceId;
 var targetId;
+var sourceUsername;
 
 var balenaSource = Balena({
   apiUrl: "https://api.balena-cloud.com",
@@ -25,6 +26,7 @@ async function login() {
   console.log('Target logged in');
 
   sourceId = await balenaSource.auth.getUserId();
+  sourceUsername = await balenaSource.auth.whoami();
   targetId = await balenaTarget.auth.getUserId();
 }
 
@@ -32,11 +34,11 @@ async function getSourceApps() {
   return balenaSource.models.application.getAll({ $filter: { user: sourceId } });//{ $filter: { organization: sourceOrg.id } });
 }
 
-async function addMemberToApp(sdk, userId, appId) {
+async function addMemberToApp(sdk, username, appId) {
   return sdk.pine.post({
     resource: 'user__is_member_of__application',
     body: {
-      user: userId,
+      username: username,
       is_member_of__application: appId
     }
   })
@@ -60,7 +62,7 @@ login()
       deviceType: 'raspberrypi3'
     }).then((targetApp) => {
       // Add source as member on target app
-      return addMemberToApp(balenaTarget, sourceId, targetApp.id)
+      return addMemberToApp(balenaTarget, sourceUsername, targetApp.id)
     }).then(() => {
       // Transfer ownership
       return balenaSource.pine.patch({
@@ -72,7 +74,7 @@ login()
       });
     }).then(() => {
       // re-add source as developer
-      return addMemberToApp(balenaTarget, sourceId, sourceApp.id)
+      return addMemberToApp(balenaTarget, sourceUsername, sourceApp.id)
     })
   .catch((err) => {
       console.log('Error transferring ', sourceApp.app_name, ': ', err, err.stack);
